@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#D32F2F</color>
     <color name="colorAccent">#009688</color>
     <color name="itemcolor">#FFFFFF</color>
+    <color name="titlebar">#003c78</color>
     <color name="textcolor">#212121</color>
     <color name="clr">#BDBDBD</color>
     <color name="bglite">#FFFFFF</color>

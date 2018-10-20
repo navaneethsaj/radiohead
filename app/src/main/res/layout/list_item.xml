@@ -11,7 +11,7 @@
         android:elevation="8dp"
         android:layout_marginHorizontal="5dp"
         android:orientation="vertical"
-        android:background="@color/itemcolor">
+        android:background="@drawable/gradient_item">
         <LinearLayout
             android:elevation="4dp"
             android:layout_marginLeft="4dp"
@@ -94,6 +94,12 @@
                 android:textSize="18sp" />
         </LinearLayout>
 
+        <Button
+            android:id="@+id/removebutton"
+            android:layout_margin="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="remove"/>
     </LinearLayout>
 
 </LinearLayout>

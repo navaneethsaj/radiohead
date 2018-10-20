@@ -1,10 +1,17 @@
 package com.blazingapps.asus.radiomanger;
 
 import android.app.AlertDialog;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -17,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int STARTUPTIMEDIFF = 30;
     ListView listView;
+    private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     AlertDialog.Builder alertDialogBuilder;
     AlertDialog alertDialog;
@@ -24,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mAuth = FirebaseAuth.getInstance();
 
         listView = findViewById(R.id.list_view);
         mDatabase = FirebaseDatabase.getInstance().getReference().child("songreq");
@@ -53,15 +63,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+                String key = dataSnapshot.getKey();
                 String id = dataSnapshot.child("id").getValue().toString();
                 String title = dataSnapshot.child("title").getValue().toString();
                 String moreinfo = dataSnapshot.child("moreinfo").getValue().toString();
-                adapter.add(new Song(id,title,moreinfo));
-                listView.setSelection(adapter.getCount() - 1);
-                if (alertDialog.isShowing())
-                {
-                    alertDialog.dismiss();
+                String used=null;
+                try {
+                    used = dataSnapshot.child("used").getValue().toString();
+                    if (used.equals("false")) {
+
+                        adapter.add(new Song(id, title, moreinfo, key));
+                        listView.setSelection(adapter.getCount() - 1);
+                        if (alertDialog.isShowing()) {
+                            alertDialog.dismiss();
+                        }
+                    }
+
+                }catch (Exception e){
+
                 }
+
             }
 
             @Override
@@ -85,5 +106,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser==null){
+            mAuth.signInAnonymously()
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getApplicationContext(),"Authenticated",Toast.LENGTH_LONG).show();
+                            } else {
+
+                                Toast.makeText(getApplicationContext(), "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    });
+
+        }
     }
 }
