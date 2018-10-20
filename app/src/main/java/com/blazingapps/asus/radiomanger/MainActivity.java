@@ -1,14 +1,8 @@
 package com.blazingapps.asus.radiomanger;
 
 import android.app.AlertDialog;
-import android.content.Context;
-import android.media.AudioManager;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ListView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -44,35 +38,30 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setMessage("        Please wait...");
+        alertDialogBuilder.setMessage("Please wait...");
         alertDialogBuilder.setCancelable(false);
 
         alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+        if (!alertDialog.isShowing())
+        {
+            alertDialog.show();
+        }
 
-        final Long startuptime = System.currentTimeMillis()/1000;
+        //final Long startuptime = System.currentTimeMillis()/1000;
 
         mDatabase.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Long diff = (System.currentTimeMillis()/1000) - startuptime;
-                Log.d("diff", String.valueOf(diff));
-                if (diff > STARTUPTIMEDIFF){
-                    try {
-                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-                        r.play();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
 
                 String id = dataSnapshot.child("id").getValue().toString();
                 String title = dataSnapshot.child("title").getValue().toString();
                 String moreinfo = dataSnapshot.child("moreinfo").getValue().toString();
                 adapter.add(new Song(id,title,moreinfo));
                 listView.setSelection(adapter.getCount() - 1);
-                alertDialog.dismiss();
+                if (alertDialog.isShowing())
+                {
+                    alertDialog.dismiss();
+                }
             }
 
             @Override
